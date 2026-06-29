@@ -1,0 +1,50 @@
+import pandas as pd
+import os
+
+data_dir = "data"
+sales_path = os.path.join(data_dir, "sales_daily.csv")
+inventory_path = os.path.join(data_dir, "inventory_snapshots.csv")
+calendar_path = os.path.join(data_dir, "calendar.csv")
+sku_path = os.path.join(data_dir, "sku_master.csv")
+
+print("Loading datasets...")
+sales = pd.read_csv(sales_path)
+inventory = pd.read_csv(inventory_path)
+calendar = pd.read_csv(calendar_path)
+sku = pd.read_csv(sku_path)
+
+print("--- SALES ---")
+print("Shape:", sales.shape)
+print("Columns:", sales.columns.tolist())
+print("Data Types:\n", sales.dtypes)
+print("Missing Values:\n", sales.isnull().sum())
+print("Duplicates:", sales.duplicated().sum())
+print("Describe:\n", sales.describe(include='all'))
+print("Head:\n", sales.head())
+
+print("\n--- INVENTORY ---")
+print("Shape:", inventory.shape)
+print("Columns:", inventory.columns.tolist())
+print("Data Types:\n", inventory.dtypes)
+print("Missing Values:\n", inventory.isnull().sum())
+print("Duplicates:", inventory.duplicated().sum())
+print("Describe:\n", inventory.describe(include='all'))
+print("Head:\n", inventory.head())
+
+print("\n--- CALENDAR ---")
+print("Shape:", calendar.shape)
+print("Columns:", calendar.columns.tolist())
+print("Data Types:\n", calendar.dtypes)
+print("Missing Values:\n", calendar.isnull().sum())
+print("Duplicates:", calendar.duplicated().sum())
+print("Describe:\n", calendar.describe(include='all'))
+print("Head:\n", calendar.head())
+
+print("\n--- SKU MASTER ---")
+print("Shape:", sku.shape)
+print("Columns:", sku.columns.tolist())
+print("Data Types:\n", sku.dtypes)
+print("Missing Values:\n", sku.isnull().sum())
+print("Duplicates:", sku.duplicated().sum())
+print("Describe:\n", sku.describe(include='all'))
+print("Head:\n", sku.head())
