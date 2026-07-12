@@ -189,6 +189,13 @@ def clean_and_validate_data(data_dir: str = "data") -> Tuple[pd.DataFrame, pd.Da
     with open(root_log_path, "w", encoding="utf-8") as f:
         json.dump(log, f, indent=4)
 
+    # Save a copy directly under project root's logs directory (expected by updated config.py)
+    root_logs_dir = os.path.join(project_root, "logs")
+    os.makedirs(root_logs_dir, exist_ok=True)
+    root_logs_path = os.path.join(root_logs_dir, "pipeline_run_log.json")
+    with open(root_logs_path, "w", encoding="utf-8") as f:
+        json.dump(log, f, indent=4)
+
     logger.info(f"Pipeline executed successfully. Cleaned files and run log saved to {data_dir}")
     logger.info(f"Cleaned Sales rows: {log['clean_sales_rows']} (Dropped {log['raw_sales_rows'] - log['clean_sales_rows']})")
     

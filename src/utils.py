@@ -5,7 +5,7 @@ Project FORESIGHT: Utility and Formatter Functions
 Contains general helpers, mathematical formatters, and central logging setup.
 """
 
-import os
+from pathlib import Path
 import logging
 from config import APP_LOG_FILE
 
@@ -39,16 +39,20 @@ def setup_logging() -> logging.Logger:
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
     
-    # Check existing handlers
+    # Check existing handlers specifically for our log file
     has_file = False
     for handler in logger.handlers:
         if isinstance(handler, logging.FileHandler):
-            has_file = True
-            break
+            try:
+                if Path(handler.baseFilename).resolve() == Path(APP_LOG_FILE).resolve():
+                    has_file = True
+                    break
+            except Exception:
+                pass
             
     # Add file handler if not already present
     if not has_file:
-        os.makedirs(os.path.dirname(APP_LOG_FILE), exist_ok=True)
+        Path(APP_LOG_FILE).parent.mkdir(parents=True, exist_ok=True)
         file_handler = logging.FileHandler(APP_LOG_FILE, encoding="utf-8")
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)

@@ -7,7 +7,7 @@ demand forecasting, and risk scoring.
 """
 
 import sys
-import os
+from pathlib import Path
 import pandas as pd
 import numpy as np
 import streamlit as st
@@ -15,7 +15,7 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 
 # Ensure src/ is in path to import modules
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
+sys.path.append(str(Path(__file__).resolve().parent / 'src'))
 
 from config import COLOR_MAP
 from utils import format_rupees, setup_logging
@@ -131,15 +131,17 @@ def get_forecast_data():
 
 # Try loading forecast data, handle missing files explicitly
 forecast_available = True
+forecast_error_msg = None
 try:
     forecast_results, forecast_metrics, pipeline_run_log = get_forecast_data()
     logger.info("Forecast data and evaluation metrics loaded successfully.")
-except ForecastDataMissingError as e:
+except Exception as e:
     forecast_available = False
     forecast_results = None
     forecast_metrics = None
     pipeline_run_log = None
-    logger.warning("Forecast pipeline outputs are missing. Operating in degraded mode.")
+    forecast_error_msg = f"{type(e).__name__}: {str(e)}"
+    logger.exception(f"Forecast pipeline outputs failed to load: {forecast_error_msg}. Operating in degraded mode.")
 
 # Latest snapshot date
 latest_snapshot_date = inventory_df["date"].max()
@@ -181,15 +183,15 @@ st.markdown("<p style='font-size: 1.1rem; color: #9ca3af; margin-bottom: 1.5rem;
 
 # Alert user if forecasting data is missing
 if not forecast_available:
-    st.error("### ⚠️ Forecast Pipeline Outputs Missing\n"
-             "The demand forecasting results and performance metrics could not be loaded.\n\n"
-             "**To resolve this and unlock forecast visualizations:**\n"
-             "1. Activate your virtual environment: `venv\\Scripts\\Activate.ps1`\n"
-             "2. Run the forecast training pipeline from your terminal:\n"
-             "   ```bash\n"
-             "   python src/train_forecast.py\n"
-             "   ```\n"
-             "3. Refresh this webpage after the pipeline completes successfully.")
+    st.error(f"### ⚠️ Forecast Pipeline Load Error\n"
+             f"**Real Error Cause**: `{forecast_error_msg}`\n\n"
+             f"**To resolve this and unlock forecast visualizations:**\n"
+             f"1. Activate your virtual environment: `.venv\\Scripts\\activate` (Windows) or `source .venv/bin/activate` (macOS/Linux)\n"
+             f"2. Run the forecast training pipeline from your terminal:\n"
+             f"   ```bash\n"
+             f"   python src/train_forecast.py\n"
+             f"   ```\n"
+             f"3. Refresh this webpage after the pipeline completes successfully.")
 
 # Calculate key stats
 num_reorders = len(risk_df[risk_df["quadrant"] == "REORDER NOW"])
