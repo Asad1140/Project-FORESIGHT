@@ -86,6 +86,13 @@ def clean_and_validate_data(data_dir: str = "data") -> Tuple[pd.DataFrame, pd.Da
     sku["unit_cost"] = sku["unit_cost"].abs()
     sku["list_price"] = sku["list_price"].abs()
 
+    # Clean and standardize category/subcategory names (fixes duplicate names issue)
+    if "category" in sku.columns:
+        sku["category"] = sku["category"].astype(str).str.strip().str.title()
+    if "subcategory" in sku.columns:
+        sku["subcategory"] = sku["subcategory"].astype(str).str.strip().str.title()
+
+
     # --- Clean Calendar ---
     calendar = calendar.drop_duplicates(subset=["date"])
     calendar = calendar.dropna(subset=["date"])
